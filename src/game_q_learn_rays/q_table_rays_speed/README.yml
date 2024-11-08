@@ -1,0 +1,9 @@
+- 300 tick
+- 300 ray distance
+- 8 rays (amount)
+
+- state return tuple(rays) + (speed, ACCELERATION)
+
+- Reward function
+  - i += 0.1 in main loop 
+    -> add 0.1 each iteration mult with speed/max_speed * i

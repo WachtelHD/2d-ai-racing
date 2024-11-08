@@ -1,0 +1,7 @@
+- 300 tick
+- 300 ray distance
+- 20 rays (amount)
+
+- Reward function -> just added 1 for each iteration
+
+- Possibly forgot to add the load function !
