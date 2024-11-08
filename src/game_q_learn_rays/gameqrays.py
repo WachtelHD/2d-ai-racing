@@ -5,6 +5,8 @@ from collections import defaultdict
 import math
 import pickle
 import os
+import cv2
+
 
 # Initialize Pygame
 pygame.init()
@@ -55,13 +57,20 @@ def get_state():
 
 
 # Define rewards including distance-based reward
-def compute_reward(i):
+def compute_reward(alive):
     if check_collision():
-        return -100  # Penalize for collision
+        return -200  # Penalize for collision
+
+    computed_reward = 0
+
+    if (car_speed/MAX_SPEED) > 0.7:
+        computed_reward += 1
+    
+    computed_reward += alive / 10
 
     # Distance reward: encourage staying in the middle of the track
     # distance_reward = calculate_distance_reward()
-    return (car_speed/MAX_SPEED) * i  # Base reward + distance-based reward
+    return computed_reward  # Base reward + distance-based reward
 
 # Q-learning Action Selection (ε-greedy)
 def choose_action(state):
@@ -103,6 +112,7 @@ def load_q_table(filename="q_table.pkl"):
     return q_table
 
 # ________________________________________________________________________________________________________________________________________________________________________________
+
 
 # Move car with acceleration and rotation
 def move_car(action):
@@ -181,18 +191,18 @@ def get_ray_distances(car_pos, car_angle, num_rays=20, ray_length=900):
     return ray_distances
 
 
-# Q = load_q_table()
+Q = load_q_table()
 
 # Main Game Loop for Q-learning Training
-for episode in range(100):  # Train for a number of episodes
+for episode in range(2000):  # Train for a number of episodes
     car_pos = start_pos[:]
     car_angle = 0
     car_speed = 2
     total_reward = 0
-    i = 0
+    iterations_alive = 0
 
     while True:
-        i += 0.1
+        iterations_alive += 1
         # Handle events to keep Pygame responsive
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -203,7 +213,7 @@ for episode in range(100):  # Train for a number of episodes
         screen.blit(track_image, (0, 0))
 
         # Check if episode is over (collision or timeout)
-        if check_collision() or total_reward > 1000:
+        if check_collision() or total_reward > 5000:
             print(f"Episode {episode + 1}: Total Reward: {total_reward}")
             break
 
@@ -217,7 +227,7 @@ for episode in range(100):  # Train for a number of episodes
         move_car(action)
         
         # Compute reward and check for collisions
-        reward = compute_reward(i)
+        reward = compute_reward(iterations_alive)
 
         total_reward += reward
 
