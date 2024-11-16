@@ -33,8 +33,8 @@ pygame.draw.polygon(car_img, RED, [(0, 0), (20, 5), (0, 10)])  # Triangle shape
 
 # Car properties
 START_POS = [200, 100]  # Start position within the track
-START_SPEED = 1
-START_ANGLE = 10
+START_SPEED = 2
+START_ANGLE = 15
 
 # Number of cars
 NUM_CARS = 30
@@ -147,7 +147,7 @@ def get_ray_distances_skeleton(car_pos, car_angle, num_rays=14, ray_length=200):
 
 # Q-learning Parameters
 Q = defaultdict(lambda: np.zeros(4))  # Q-table with 4 actions: 0=accelerate, 1=brake, 2=turn left, 3=turn right
-epsilon = 0.01  # Exploration factor
+epsilon = 0.02  # Exploration factor
 alpha = 0.1  # Learning rate
 gamma = 0.9  # Discount factor
 
@@ -163,28 +163,28 @@ def get_state(car_pos, car_angle, car_speed):
 # Define rewards including distance-based reward
 def compute_reward(car_pos, car_angle, car_speed, steps_alive):
     if check_collision(car_pos):
-        return -2000  # Penalize for collision
+        return -1000  # Penalize for collision
 
     reward = 0
 
     min_skeleton_rays = min(get_ray_distances_skeleton(car_pos, car_angle))
 
     if min_skeleton_rays < 0.15:
-        reward += 0.5
-
-    if min_skeleton_rays < 0.1:
         reward += 1
 
-    if min_skeleton_rays < 0.05:
+    if min_skeleton_rays < 0.1:
         reward += 2
+
+    if min_skeleton_rays < 0.05:
+        reward += 4
 
     # Small reward based on the car's speed to encourage faster movement
     if (car_speed / MAX_SPEED) > 0.7:
         reward += (car_speed / MAX_SPEED) * 2
 
-    reward += (steps_alive/10)
+    reward += (steps_alive/20)
 
-    return reward
+    return reward/2
 
 # Q-learning Action Selection (ε-greedy)
 def choose_action(state):
@@ -312,14 +312,18 @@ def get_ray_distances(car_pos, car_angle, num_rays=20, ray_length=900):
 
 # ------------------------------------ Game ------------------------------------------
 
-# Q = load_q_table()
+Q = load_q_table()
+
+
+total_rewards = [0] * NUM_CARS  # Track rewards for each car
+steps_alive = [0] * NUM_CARS  # Track steps alive for each car
 
 # Main Game Loop for Q-learning Training
-for episode in range(100):  # Train for a number of episodes2
-    total_rewards = [0] * NUM_CARS  # Track rewards for each car
-    steps_alive = [0] * NUM_CARS  # Track steps alive for each car
+for episode in range(500):  # Train for a number of episodes2
+    cars_run = 0
 
     while True:
+
         # Handle events to keep Pygame responsive
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -358,20 +362,26 @@ for episode in range(100):  # Train for a number of episodes2
                 train_from_replay(replay_buffers[i])
 
             # Check if the car collided or reached the max reward
-            if check_collision(car_positions[i]) or total_rewards[i] > 5000:
+            # if check_collision(car_positions[i]) or total_rewards[i] > 50000:
+            if check_collision(car_positions[i]):
                 print(f"Car {i} - Episode {episode + 1}: Total Reward: {total_rewards[i]}")
                 # Reset the car's position, angle, and speed for the next episode
                 car_positions[i] = START_POS[:]
                 car_angles[i] = START_ANGLE
                 car_speeds[i] = START_SPEED
+                total_rewards[i] = 0   # Track rewards for each car
+                steps_alive[i] = 0  # Track steps alive for each car
                 total_rewards[i] = 0
                 steps_alive[i] = 0
-                
+                cars_run += 1
 
         # Draw all cars on the track
         draw_cars()
         
         pygame.display.flip()
         clock.tick(300)
+
+        if cars_run > 50:
+            break
 
 save_q_table()
