@@ -45,28 +45,3 @@ from collections import defaultdict
 #         td_target = reward + gamma * Q[next_state][best_next_action]
 #         td_error = td_target - Q[state][action]
 #         Q[state][action] += alpha * td_error
-
-# def calculate_distance_reward():
-#     # Calculate the distance from the car to both inner and outer boundaries
-#     car_rect = pygame.Rect(car_pos[0], car_pos[1], 1, 1)
-    
-#     # Distance to outer boundary (calculate minimum distance to edges)
-#     outer_left = abs(car_pos[0] - OUTER_BOUNDARY_RECT.left)
-#     outer_right = abs(OUTER_BOUNDARY_RECT.right - car_pos[0])
-#     outer_top = abs(car_pos[1] - OUTER_BOUNDARY_RECT.top)
-#     outer_bottom = abs(OUTER_BOUNDARY_RECT.bottom - car_pos[1])
-#     distance_to_outer = min(outer_left, outer_right, outer_top, outer_bottom)
-    
-#     # Distance to inner boundary (calculate minimum distance to edges)
-#     inner_left = abs(car_pos[0] - INNER_BOUNDARY_RECT.left)
-#     inner_right = abs(INNER_BOUNDARY_RECT.right - car_pos[0])
-#     inner_top = abs(car_pos[1] - INNER_BOUNDARY_RECT.top)
-#     inner_bottom = abs(INNER_BOUNDARY_RECT.bottom - car_pos[1])
-#     distance_to_inner = min(inner_left, inner_right, inner_top, inner_bottom)
-    
-#     # Calculate reward based on the minimum distance to the boundaries
-#     max_distance = min(OUTER_BOUNDARY_RECT.width // 2, OUTER_BOUNDARY_RECT.height // 2)
-#     distance_from_boundaries = min(distance_to_outer, distance_to_inner)
-#     distance_reward = (distance_from_boundaries / max_distance)  # Normalize by max distance
-    
-#     return distance_reward  # This reward is between 0 and 1
