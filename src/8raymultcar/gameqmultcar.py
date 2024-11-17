@@ -189,8 +189,14 @@ def compute_reward(car_pos, car_angle, car_speed, steps_alive):
     return reward/2
 
 # Q-learning Action Selection (ε-greedy)
-def choose_action(state):
+def choose_action(state,episode):
     state = tuple(state)
+    random_action = epsilon * 2
+    # print(episode)
+    if episode > 0:
+        decrease = epsilon/(episode/2)
+        random_action = epsilon - decrease
+    # print(random_action)
     if random.uniform(0, 1) < epsilon:
         return random.randint(0, 3)  # Explore: random action
     return np.argmax(Q[state])  # Exploit: best known action
@@ -317,7 +323,7 @@ total_rewards = [0] * NUM_CARS  # Track rewards for each car
 steps_alive = [0] * NUM_CARS  # Track steps alive for each car
 
 # Main Game Loop for Q-learning Training
-for episode in range(50):  # Train for a number of episodes2
+for episode in range(200):  # Train for a number of episodes2
     cars_run = 0
 
     while True:
@@ -339,7 +345,7 @@ for episode in range(50):  # Train for a number of episodes2
             state = get_state(car_positions[i], car_angles[i], car_speeds[i])
             
             # Choose an action based on the current state
-            action = choose_action(state)
+            action = choose_action(state, episode)
             
             # Move each car independently
             move_car(i, action)

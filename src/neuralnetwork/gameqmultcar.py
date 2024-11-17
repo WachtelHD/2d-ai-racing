@@ -240,11 +240,14 @@ EPSILON = 1.0
 EPSILON_DECAY = 0.995
 MIN_EPSILON = 0.1
 
+
+# !!!!!!!!!!!!!!! Use conda !!!!!!!!!!!!!!
+
 # Neural network model
 def create_model(input_size, output_size):
     model = models.Sequential([
-        layers.Dense(64, activation='relu', input_shape=(input_size,)),
-        layers.Dense(64, activation='relu'),
+        layers.Dense(8, activation='relu', input_shape=(input_size,)),
+        layers.Dense(8, activation='relu'),
         layers.Dense(output_size, activation='softmax')  # Softmax for classification
     ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
